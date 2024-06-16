@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 30 23:21:45 2024
+Created on Fri Jun 14 17:18:45 2024
 
 @author: AMADOR
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -12,7 +13,7 @@ def initialize_particles(n_particulas, dimensiones, lim_inf, lim_sup):
     velocidades = np.random.uniform(-(lim_sup - lim_inf), lim_sup - lim_inf, (n_particulas, dimensiones))
     return posiciones, velocidades
 
-def pso(funcion_aptitud, dimensiones, lim_inf, lim_sup, n_particulas=100, w=0.5, c1=1.5, c2=1.5, max_iter=100):
+def pso(funcion_aptitud, dimensiones, lim_inf, lim_sup, n_particulas=30, w=0.5, c1=1.5, c2=1.5, max_iter=6000):
     posiciones, velocidades = initialize_particles(n_particulas, dimensiones, lim_inf, lim_sup)
     pBest_posiciones = np.copy(posiciones)
     pBest_valores = np.array([funcion_aptitud(p) for p in posiciones])
@@ -47,65 +48,43 @@ def pso(funcion_aptitud, dimensiones, lim_inf, lim_sup, n_particulas=100, w=0.5,
     history["iter_final"] = np.copy(posiciones)
     return gBest_posicion, gBest_valor, history
 
-def funcion_esfera(x):
+def funcion_esfera_1d(x):
     a = 20
     b = 0.2
     c = 2 * np.pi
-    d = len(x)
-    sum1 = np.sum(x**2)
-    sum2 = np.sum(np.cos(c * x))
+    d = 1  # Para 1 dimensión
+    sum1 = x**2
+    sum2 = np.cos(c * x)
     term1 = -a * np.exp(-b * np.sqrt(sum1 / d))
     term2 = -np.exp(sum2 / d)
     return term1 + term2 + a + np.exp(1)
 
+dimensiones = 1  # Usamos 1 dimensión para graficar en 1D
+lim_inf = np.array([-200] * dimensiones)
+lim_sup = np.array([200] * dimensiones)
+max_iter = 25  # Define el número máximo de iteraciones
 
-def funcion_cuadratica(x):
-    # Coeficientes cuadráticos
-    A = np.array([[2, 1], [1, 2]])  # Matriz de coeficientes cuadráticos (positiva definida)
-    # Coeficientes lineales
-    C = np.array([-6, -4])  # Vector de coeficientes lineales
-    # Término constante
-    D = 10  # Término constante
-
-    # Calcular el valor de la función cuadrática
-    resultado = 0.5 * np.dot(x.T, np.dot(A, x)) + np.dot(C, x) + D
-
-    return resultado
-
-
-# Graficar la función de aptitud
-def plot_function(ax, funcion_aptitud, lim_inf, lim_sup):
-    x = np.linspace(lim_inf[0], lim_sup[0], 100)
-    y = np.linspace(lim_inf[1], lim_sup[1], 100)
-    X, Y = np.meshgrid(x, y)
-    Z = np.array([funcion_aptitud(np.array([x, y])) for x, y in zip(np.ravel(X), np.ravel(Y))])
-    Z = Z.reshape(X.shape)
-    contour = ax.contourf(X, Y, Z, levels=50, cmap='viridis', alpha=0.6)
-    plt.colorbar(contour, ax=ax)
-
-dimensiones = 3  # Usamos 2 dimensiones para poder graficar
-lim_inf = np.array([-100] * dimensiones)
-lim_sup = np.array([100] * dimensiones)
-max_iter = 1000  # Define el número máximo de iteraciones
-
-mejor_posicion, mejor_valor, history = pso(funcion_esfera, dimensiones, lim_inf, lim_sup, max_iter=max_iter)
+mejor_posicion, mejor_valor, history = pso(funcion_esfera_1d, dimensiones, lim_inf, lim_sup, max_iter=max_iter)
 
 print("Mejor posición:", mejor_posicion)
 print("Mejor valor:", mejor_valor)
 
-# Graficar posiciones de partículas en iteraciones seleccionadas junto con la función
+# Graficar la función de aptitud y las posiciones de las partículas
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
-def plot_particles(ax, posiciones, iteracion):
-    plot_function(ax, funcion_esfera, lim_inf, lim_sup)
-    ax.scatter(posiciones[:, 0], posiciones[:, 1], c='red', marker='o', s=50)
-    ax.set_xlim(-101, 101)
-    ax.set_ylim(-101, 101)
+def plot_particles_1d(ax, posiciones, iteracion):
+    x = np.linspace(lim_inf[0], lim_sup[0], 400)
+    y = np.array([funcion_esfera_1d(xi) for xi in x])
+    ax.plot(x, y, 'b-', label='Función de aptitud')
+    ax.scatter(posiciones, funcion_esfera_1d(posiciones), c='red', marker='o', s=50, label='Partículas')
+    ax.set_xlim(-1, 20)
+    ax.set_ylim(- 1, 20)
     ax.set_title(f'Iteración {iteracion}')
     ax.grid(True)
+    ax.legend()
 
-plot_particles(axes[0], history["iter_0"], 'Inicial')
-plot_particles(axes[1], history["iter_half"], f'{max_iter // 2}')
-plot_particles(axes[2], history["iter_final"], 'Final')
+plot_particles_1d(axes[0], history["iter_0"], 'Inicial')
+plot_particles_1d(axes[1], history["iter_half"], f'{max_iter // 2}')
+plot_particles_1d(axes[2], history["iter_final"], 'Final')
 
 plt.show()
