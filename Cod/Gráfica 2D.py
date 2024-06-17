@@ -12,7 +12,7 @@ def initialize_particles(n_particulas, dimensiones, lim_inf, lim_sup):
     velocidades = np.random.uniform(-(lim_sup - lim_inf), lim_sup - lim_inf, (n_particulas, dimensiones))
     return posiciones, velocidades
 
-def pso(funcion_aptitud, dimensiones, lim_inf, lim_sup, n_particulas=100, w=0.5, c1=1.5, c2=1.5, max_iter=100):
+def pso(funcion_aptitud, dimensiones, lim_inf, lim_sup, n_particulas=30, w=0.5, c1=1.5, c2=1.5, max_iter=100):
     posiciones, velocidades = initialize_particles(n_particulas, dimensiones, lim_inf, lim_sup)
     pBest_posiciones = np.copy(posiciones)
     pBest_valores = np.array([funcion_aptitud(p) for p in posiciones])
@@ -83,12 +83,14 @@ def plot_function(ax, funcion_aptitud, lim_inf, lim_sup):
     contour = ax.contourf(X, Y, Z, levels=50, cmap='viridis', alpha=0.6)
     plt.colorbar(contour, ax=ax)
 
-dimensiones = 3  # Usamos 2 dimensiones para poder graficar
-lim_inf = np.array([-100] * dimensiones)
-lim_sup = np.array([100] * dimensiones)
-max_iter = 1000  # Define el número máximo de iteraciones
 
-mejor_posicion, mejor_valor, history = pso(funcion_esfera, dimensiones, lim_inf, lim_sup, max_iter=max_iter)
+
+dimensiones = 2  # Usamos 2 dimensiones para poder graficar
+lim_inf = np.array([-30] * dimensiones)
+lim_sup = np.array([30] * dimensiones)
+max_iter = 25  # Define el número máximo de iteraciones
+
+mejor_posicion, mejor_valor, history = pso(funcion_cuadratica, dimensiones, lim_inf, lim_sup, max_iter=max_iter)
 
 print("Mejor posición:", mejor_posicion)
 print("Mejor valor:", mejor_valor)
@@ -99,8 +101,8 @@ fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 def plot_particles(ax, posiciones, iteracion):
     plot_function(ax, funcion_esfera, lim_inf, lim_sup)
     ax.scatter(posiciones[:, 0], posiciones[:, 1], c='red', marker='o', s=50)
-    ax.set_xlim(-101, 101)
-    ax.set_ylim(-101, 101)
+    ax.set_xlim(-30, 30)
+    ax.set_ylim(-30, 30)
     ax.set_title(f'Iteración {iteracion}')
     ax.grid(True)
 

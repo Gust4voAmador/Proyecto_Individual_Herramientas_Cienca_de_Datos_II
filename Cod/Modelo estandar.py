@@ -34,7 +34,7 @@ def initialize_particles(n_particulas, dimensiones, lim_inf, lim_sup):
 
 
 
-def pso(funcion_aptitud, dimensiones, lim_inf, lim_sup, n_particulas=30, w=0.5, c1=1.5, c2=1.5, max_iter=1000):
+def pso(funcion_aptitud, dimensiones, lim_inf, lim_sup, n_particulas=30, w=0.5, c1=1.5, c2=1.5, max_iter=100):
     """
     Implementa el algoritmo PSO estándar.
 
@@ -125,8 +125,8 @@ def funcion_cuadratica(x):
 
 inicio = time.time()
 dimensiones = 2  # Cambia este valor para cualquier número de dimensiones
-lim_inf = np.array([-100.0] * dimensiones)
-lim_sup = np.array([100.0] * dimensiones)
+lim_inf = np.array([-1000.0] * dimensiones)
+lim_sup = np.array([1000.0] * dimensiones)
 
 mejor_posicion, mejor_valor, num_iteracion = pso(funcion_cuadratica, dimensiones, lim_inf, lim_sup)
 print(f'Número de iteración: {num_iteracion}')
