@@ -9,17 +9,25 @@ import numpy as np
 #Note que que los límites deben ser un array de la misma dimension qeu se indica
 def initialize_particles(n_particulas, dimensiones, lim_inf, lim_sup):
     """
-    Inicializa las posiciones y velocidades de las partículas.
+    Inicializa las posiciones y velocidades de las partículas en el algoritmo de optimización por enjambre de partículas (PSO).
 
-    Args:
-    n_particulas (int): Número de partículas.
-    dimensiones (int): Dimensiones del espacio de búsqueda.
-    lim_inf (array): Límite inferior del espacio de búsqueda.
-    lim_sup (array): Límite superior del espacio de búsqueda.
+    Parameters:
+    ----------
+    n_particulas : int
+        Número de partículas en el enjambre.
+    dimensiones : int
+        Número de dimensiones del espacio de búsqueda.
+    lim_inf : array
+        Límite inferior del espacio de búsqueda para cada dimensión.
+    lim_sup : array
+        Límite superior del espacio de búsqueda para cada dimensión.
 
     Returns:
-    posiciones (array): Posiciones iniciales de las partículas.
-    velocidades (array): Velocidades iniciales de las partículas.
+    ----------
+    posiciones : array
+        Posiciones iniciales de las partículas, con forma (n_particulas, dimensiones).
+    velocidades : array
+        Velocidades iniciales de las partículas, con forma (n_particulas, dimensiones).
     """
     #Usa distribución uniforme
     # Inicializar posiciones de partículas dentro de los límites especificados crando una matriz
@@ -36,22 +44,37 @@ def initialize_particles(n_particulas, dimensiones, lim_inf, lim_sup):
 
 def pso(funcion_aptitud, dimensiones, lim_inf, lim_sup, n_particulas=30, w=0.5, c1=1.5, c2=1.5, max_iter=100):
     """
-    Implementa el algoritmo PSO estándar.
+    Implementa el algoritmo de optimización por enjambre de partículas (PSO) estándar.
 
-    Args:
-    - funcion_aptitud: Función objetivo que se quiere minimizar.
-    - dimensiones: Dimensiones del espacio de búsqueda.
-    - lim_inf: Límite inferior del espacio de búsqueda.
-    - lim_sup: Límite superior del espacio de búsqueda.
-    - n_particulas: Número de partículas.
-    - w: Factor de inercia.
-    - c1: Coeficiente cognitivo (atracción hacia la mejor posición personal).
-    - c2: Coeficiente social (atracción hacia la mejor posición global).
-    - max_iter: Número máximo de iteraciones.
+    Parameters:
+    ----------
+    funcion_aptitud : callable
+        Función objetivo que se quiere minimizar.
+    dimensiones : int
+        Número de dimensiones del espacio de búsqueda.
+    lim_inf : array
+        Límite inferior del espacio de búsqueda para cada dimensión.
+    lim_sup : array
+        Límite superior del espacio de búsqueda para cada dimensión.
+    n_particulas : int, optional
+        Número de partículas en el enjambre (por defecto es 30).
+    w : float, optional
+        Factor de inercia (por defecto es 0.5).
+    c1 : float, optional
+        Coeficiente cognitivo (atracción hacia la mejor posición personal, por defecto es 1.5).
+    c2 : float, optional
+        Coeficiente social (atracción hacia la mejor posición global, por defecto es 1.5).
+    max_iter : int, optional
+        Número máximo de iteraciones (por defecto es 100).
 
     Returns:
-    - mejor_posicion_global: Mejor posición global encontrada.
-    - mejor_valor_global: Valor de la función objetivo en la mejor posición global encontrada.
+    ----------
+    mejor_posicion_global : array
+        Mejor posición global encontrada.
+    mejor_valor_global : float
+        Valor de la función objetivo en la mejor posición global encontrada.
+    max_iter : int
+        Número máximo de iteraciones.
     """
     # Inicialización de posiciones y velocidades
     posiciones, velocidades = initialize_particles(n_particulas, dimensiones, lim_inf, lim_sup)
