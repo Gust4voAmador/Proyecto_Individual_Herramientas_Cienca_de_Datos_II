@@ -1,0 +1,2 @@
+Hola profe, resulta que si la carpeta está vacía la onedrive me la quita la carpeta del local, entonces no me aparece en git.
+Por eso decidí agregarle un .txt para que me considere la carpeta. Gracias.
