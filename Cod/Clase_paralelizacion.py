@@ -60,6 +60,19 @@ class Paralelizacion:
         return gBest_posicion, gBest_valor, max_iter
 
     def funcion_ackley(self, x):
+        """
+        Calcula el valor de la función de Ackley en un punto dado.
+    
+        Parameters:
+        ----------
+        x : array
+            Vector de entrada para el cual se calcula el valor de la función de Ackley.
+    
+        Returns:
+        ----------
+        float
+            Valor de la función de Ackley en el punto x.
+        """
         a = 20
         b = 0.2
         c = 2 * np.pi
@@ -69,21 +82,55 @@ class Paralelizacion:
         term1 = -a * np.exp(-b * np.sqrt(sum1 / d))
         term2 = -np.exp(sum2 / d)
         return term1 + term2 + a + np.exp(1)
-
+    
     def funcion_cuadratica(self, x):
+        """
+        Calcula el valor de una función cuadrática en un punto dado.
+    
+        Parameters:
+        ----------
+        x : array
+            Vector de entrada para el cual se calcula el valor de la función cuadrática.
+    
+        Returns:
+        ----------
+        float
+            Valor de la función cuadrática en el punto x.
+        """
         # Coeficientes cuadráticos
         A = np.array([[2, 1], [1, 2]])  # Matriz de coeficientes cuadráticos (positiva definida)
         # Coeficientes lineales
         C = np.array([-6, -4])  # Vector de coeficientes lineales
         # Término constante
         D = 10  # Término constante
-
+    
         # Calcular el valor de la función cuadrática
         resultado = 0.5 * np.dot(x.T, np.dot(A, x)) + np.dot(C, x) + D
-
+    
         return resultado
-
+    
     def ejecutar_pso_en_subregion(self, lim_inf, lim_sup, funcion, n_particulas, max_iter):
+        """
+        Ejecuta el algoritmo de PSO en una subregión del espacio de búsqueda.
+    
+        Parameters:
+        ----------
+        lim_inf : array
+            Límite inferior del espacio de búsqueda de la subregión.
+        lim_sup : array
+            Límite superior del espacio de búsqueda de la subregión.
+        funcion : str
+            Nombre de la función objetivo a optimizar ('ackley' o 'cuadratica').
+        n_particulas : int
+            Número de partículas en el enjambre.
+        max_iter : int
+            Número máximo de iteraciones para el PSO.
+    
+        Returns:
+        ----------
+        tuple
+            Mejor posición y valor encontrados por el PSO en la subregión.
+        """
         if funcion == 'ackley':
             return self.pso(self.funcion_ackley, lim_inf, lim_sup, n_particulas=n_particulas, max_iter=max_iter)
         elif funcion == 'cuadratica':
@@ -92,25 +139,48 @@ class Paralelizacion:
             return self.pso(self.funcion_cuadratica, lim_inf, lim_sup, n_particulas=n_particulas, max_iter=max_iter)
         else:
             raise ValueError("Función ingresada inválida.")
-        
+    
     def dividir_espacio_de_busqueda(self):
+        """
+        Divide el espacio de búsqueda global en subregiones.
+    
+        Returns:
+        ----------
+        list of tuples
+            Lista de subregiones, cada una definida por sus límites inferior y superior.
+        """
         subregiones = []
         intervalos = np.linspace(self.lim_inf_global, self.lim_sup_global, self.num_subregiones + 1)
         for i in range(self.num_subregiones):
             subregiones.append((intervalos[i], intervalos[i + 1]))
         return subregiones
-
+    
     def ejecutar_optimizacion(self, n_particulas=30, max_iter=100):
+        """
+        Ejecuta la optimización utilizando PSO en subregiones del espacio de búsqueda en paralelo.
+    
+        Parameters:
+        ----------
+        n_particulas : int, optional
+            Número de partículas en el enjambre, por defecto 30.
+        max_iter : int, optional
+            Número máximo de iteraciones para el PSO, por defecto 100.
+    
+        Returns:
+        ----------
+        tuple
+            Mejor valor encontrado y el tiempo transcurrido en la optimización.
+        """
         inicio = time.time()
-
+    
         # Crear los límites de cada subregión
         subregiones = self.dividir_espacio_de_busqueda()
-
+    
         # Ejecutar PSO en paralelo en cada subregión
         with concurrent.futures.ProcessPoolExecutor() as executor:
             futures = [executor.submit(self.ejecutar_pso_en_subregion, lim_inf, lim_sup, self.funcion, n_particulas, max_iter) for lim_inf, lim_sup in subregiones]
             resultados = [future.result() for future in concurrent.futures.as_completed(futures)]
-
+    
         # Encontrar la mejor solución entre todas las subregiones
         mejor_resultado = min(resultados, key=lambda x: x[1])
         fin = time.time()
@@ -118,12 +188,10 @@ class Paralelizacion:
         mejor_valor = mejor_resultado[1]
         tiempo = fin - inicio
         return mejor_valor, tiempo
-        #print(f'Número de iteración: {mejor_resultado[2]}')
-        #print(f"Mejor posición: {mejor_resultado[0]}")
-        #print(f"Mejor valor: {mejor_resultado[1]}")
-        
-        #print(f'Tiempo transcurrido: {fin - inicio} segundos')
-
+    
+    
+    
+    
 # Ejemplo de uso
 if __name__ == '__main__':
     paralelizacion = Paralelizacion(dimensiones=5, lim_inf_global=-30.0, lim_sup_global=30.0, num_subregiones=6, funcion='ackley')
